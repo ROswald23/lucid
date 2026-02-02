@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mentions Légales - Lucid</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --lucid-blue: #5DB9E8;
+            --lucid-purple: #9B6BDF;
+            --lucid-dark: #0A0E27;
+            --lucid-gray: #1A1F3A;
+            --lucid-light: #F8F9FC;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--lucid-dark);
+            color: var(--lucid-light);
+            line-height: 1.8;
+        }
+
+        header {
+            padding: 2rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(10, 14, 39, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(93, 185, 232, 0.1);
+        }
+
+        .logo {
+            height: 50px;
+        }
+
+        .back-link {
+            color: var(--lucid-blue);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .back-link:hover {
+            color: var(--lucid-purple);
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 4rem auto;
+            padding: 0 5%;
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--lucid-blue) 0%, var(--lucid-purple) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+
+        .last-update {
+            color: rgba(248, 249, 252, 0.6);
+            margin-bottom: 3rem;
+            font-size: 0.95rem;
+        }
+
+        h2 {
+            color: var(--lucid-blue);
+            font-size: 1.8rem;
+            margin-top: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        h3 {
+            color: var(--lucid-purple);
+            font-size: 1.3rem;
+            margin-top: 2rem;
+            margin-bottom: 0.8rem;
+        }
+
+        p {
+            margin-bottom: 1.5rem;
+            color: rgba(248, 249, 252, 0.85);
+        }
+
+        ul {
+            margin-left: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+            color: rgba(248, 249, 252, 0.85);
+        }
+
+        .section {
+            background: rgba(26, 31, 58, 0.4);
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(93, 185, 232, 0.1);
+        }
+
+        footer {
+            padding: 2rem 5%;
+            text-align: center;
+            border-top: 1px solid rgba(93, 185, 232, 0.1);
+            margin-top: 4rem;
+        }
+
+        a {
+            color: var(--lucid-blue);
+            text-decoration: none;
+        }
+
+        a:hover {
+            color: var(--lucid-purple);
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            .container {
+                margin: 2rem auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <img src="logo_Lucid.png" alt="Lucid Logo" class="logo">
+        <a href="index.html" class="back-link">← Retour à l'accueil</a>
+    </header>
+
+    <div class="container">
+        <h1>Mentions Légales</h1>
+        <p class="last-update">Dernière mise à jour : 02 février 2026</p>
+
+        <div class="section">
+            <h2>1. Éditeur du site</h2>
+            <p><strong>Raison sociale :</strong> LUCID</p>
+            <p><strong>Forme juridique :</strong> [À compléter - ex: SAS, SARL, etc.]</p>
+            <p><strong>Capital social :</strong> [À compléter]</p>
+            <p><strong>Siège social :</strong> [À compléter - Adresse complète]</p>
+            <p><strong>Numéro SIRET :</strong> [À compléter]</p>
+            <p><strong>Numéro TVA intracommunautaire :</strong> [À compléter]</p>
+            <p><strong>Email :</strong> contact@lucid.fr</p>
+            <p><strong>Téléphone :</strong> [À compléter]</p>
+            
+            <h3>Direction de la publication</h3>
+            <p><strong>Directeur de publication :</strong> Reece Oswald I. - Président</p>
+            <p><strong>Directrice Générale :</strong> Mariam Seyba</p>
+        </div>
+
+        <div class="section">
+            <h2>2. Hébergement</h2>
+            <p><strong>Hébergeur :</strong> Vercel Inc.</p>
+            <p><strong>Adresse :</strong> 340 S Lemon Ave #4133, Walnut, CA 91789, USA</p>
+            <p><strong>Site web :</strong> <a href="https://vercel.com">vercel.com</a></p>
+        </div>
+
+        <div class="section">
+            <h2>3. Propriété intellectuelle</h2>
+            <p>L'ensemble du contenu de ce site (textes, images, vidéos, logos, graphismes, etc.) est la propriété exclusive de LUCID, sauf mention contraire.</p>
+            <p>Toute reproduction, représentation, modification, publication, adaptation de tout ou partie des éléments du site, quel que soit le moyen ou le procédé utilisé, est interdite, sauf autorisation écrite préalable de LUCID.</p>
+            <p>Le logo LUCID et la marque LUCID sont des marques déposées. Toute utilisation non autorisée de ces marques constitue une contrefaçon sanctionnée par les articles L. 713-2 et suivants du Code de la propriété intellectuelle.</p>
+        </div>
+
+        <div class="section">
+            <h2>4. Protection des données personnelles</h2>
+            <p>Conformément au Règlement Général sur la Protection des Données (RGPD) et à la loi Informatique et Libertés, vous disposez d'un droit d'accès, de rectification, de suppression et d'opposition aux données personnelles vous concernant.</p>
+            <p>Pour exercer ces droits, vous pouvez nous contacter à l'adresse : <strong>dpo@lucid.fr</strong> ou <strong>contact@lucid.fr</strong></p>
+            <p>Pour plus d'informations sur la gestion de vos données personnelles, consultez notre <a href="privacy.html">Politique de Confidentialité</a>.</p>
+        </div>
+
+        <div class="section">
+            <h2>5. Cookies</h2>
+            <p>Ce site utilise des cookies pour améliorer l'expérience utilisateur et réaliser des statistiques de visite.</p>
+            <p>Vous pouvez à tout moment désactiver les cookies depuis les paramètres de votre navigateur. Cependant, cela peut affecter certaines fonctionnalités du site.</p>
+            <p>Types de cookies utilisés :</p>
+            <ul>
+                <li>Cookies techniques : nécessaires au bon fonctionnement du site</li>
+                <li>Cookies analytiques : pour mesurer l'audience (Google Analytics ou équivalent)</li>
+                <li>Cookies de formulaires : pour mémoriser vos préférences</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>6. Responsabilité</h2>
+            <p>LUCID s'efforce d'assurer l'exactitude et la mise à jour des informations diffusées sur ce site. Toutefois, LUCID ne peut garantir l'exactitude, la précision ou l'exhaustivité des informations mises à disposition.</p>
+            <p>LUCID ne saurait être tenue responsable :</p>
+            <ul>
+                <li>Des erreurs ou omissions dans le contenu du site</li>
+                <li>Des dommages directs ou indirects résultant de l'utilisation du site</li>
+                <li>De l'interruption temporaire ou permanente du site</li>
+                <li>Des virus informatiques pouvant affecter l'équipement de l'utilisateur</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>7. Liens hypertextes</h2>
+            <p>Ce site peut contenir des liens vers des sites externes. LUCID n'exerce aucun contrôle sur ces sites et décline toute responsabilité quant à leur contenu.</p>
+            <p>La création de liens hypertextes vers ce site nécessite l'autorisation préalable écrite de LUCID.</p>
+        </div>
+
+        <div class="section">
+            <h2>8. Droit applicable et juridiction</h2>
+            <p>Les présentes mentions légales sont régies par le droit français.</p>
+            <p>En cas de litige, et à défaut d'accord amiable, les tribunaux français seront seuls compétents.</p>
+        </div>
+
+        <div class="section">
+            <h2>9. Contact</h2>
+            <p>Pour toute question concernant ces mentions légales, vous pouvez nous contacter :</p>
+            <ul>
+                <li><strong>Par email :</strong> contact@lucid.fr</li>
+                <li><strong>Par téléphone :</strong> [À compléter]</li>
+                <li><strong>Par courrier :</strong> [Adresse du siège social]</li>
+            </ul>
+            <p><strong>Support client disponible :</strong> 7 jours sur 7, de 9h à 18h</p>
+        </div>
+    </div>
+
+    <footer>
+        <p style="color: rgba(248, 249, 252, 0.5);">© 2026 Lucid. Tous droits réservés.</p>
+        <p style="margin-top: 1rem;">
+            <a href="index.html" style="margin: 0 1rem;">Accueil</a>
+            <a href="mentions-legales.html" style="margin: 0 1rem;">Mentions légales</a>
+            <a href="cgv.html" style="margin: 0 1rem;">CGV</a>
+            <a href="privacy.html" style="margin: 0 1rem;">Confidentialité</a>
+        </p>
+    </footer>
+</body>
+</html>
