@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Leads - Lucid</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    
+    <!-- Supabase Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    
+    <style>
+        :root {
+            --lucid-blue: #5DB9E8;
+            --lucid-purple: #9B6BDF;
+            --lucid-dark: #0A0E27;
+            --lucid-gray: #1A1F3A;
+            --lucid-light: #F8F9FC;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--lucid-dark);
+            color: var(--lucid-light);
+            line-height: 1.6;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--lucid-blue) 0%, var(--lucid-purple) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 2rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: rgba(26, 31, 58, 0.6);
+            padding: 2rem;
+            border-radius: 15px;
+            border: 1px solid rgba(93, 185, 232, 0.2);
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--lucid-blue) 0%, var(--lucid-purple) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .stat-label {
+            color: rgba(248, 249, 252, 0.7);
+            margin-top: 0.5rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            background: rgba(26, 31, 58, 0.6);
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            border: 1px solid rgba(93, 185, 232, 0.2);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: rgba(248, 249, 252, 0.7);
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, var(--lucid-blue) 0%, var(--lucid-purple) 100%);
+            color: white;
+            border-color: transparent;
+        }
+
+        .leads-table {
+            background: rgba(26, 31, 58, 0.6);
+            border-radius: 15px;
+            padding: 2rem;
+            border: 1px solid rgba(93, 185, 232, 0.2);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(93, 185, 232, 0.1);
+        }
+
+        th {
+            color: var(--lucid-blue);
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: rgba(93, 185, 232, 0.05);
+        }
+
+        .badge {
+            padding: 0.4rem 1rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .badge-nouveau {
+            background: rgba(93, 185, 232, 0.2);
+            color: var(--lucid-blue);
+        }
+
+        .badge-en-attente {
+            background: rgba(155, 107, 223, 0.2);
+            color: var(--lucid-purple);
+        }
+
+        .badge-non-lu {
+            background: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+        }
+
+        .badge-contact {
+            background: rgba(255, 87, 87, 0.2);
+            color: #ff5757;
+        }
+
+        .badge-demo {
+            background: rgba(93, 185, 232, 0.2);
+            color: var(--lucid-blue);
+        }
+
+        .badge-rdv {
+            background: rgba(155, 107, 223, 0.2);
+            color: var(--lucid-purple);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: rgba(248, 249, 252, 0.5);
+        }
+
+        .error {
+            background: rgba(255, 87, 87, 0.2);
+            color: #ff5757;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin: 2rem 0;
+        }
+
+        .refresh-btn {
+            background: linear-gradient(135deg, var(--lucid-blue) 0%, var(--lucid-purple) 100%);
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 2rem;
+        }
+
+        .refresh-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(93, 185, 232, 0.4);
+        }
+
+        .back-link {
+            display: inline-block;
+            color: var(--lucid-blue);
+            text-decoration: none;
+            margin-bottom: 2rem;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            color: var(--lucid-purple);
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .leads-table {
+                padding: 1rem;
+            }
+
+            table {
+                font-size: 0.9rem;
+            }
+
+            th, td {
+                padding: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-link">← Retour au site</a>
+        
+        <h1>📊 Dashboard Leads</h1>
+
+        <button class="refresh-btn" onclick="loadDashboard()">🔄 Actualiser</button>
+
+        <!-- Statistics -->
+        <div class="stats-grid" id="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="total-leads">--</div>
+                <div class="stat-label">Leads Total</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="demo-count">--</div>
+                <div class="stat-label">Demandes Démo</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="rdv-count">--</div>
+                <div class="stat-label">Demandes RDV</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="contact-count">--</div>
+                <div class="stat-label">Messages Contact</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="new-leads">--</div>
+                <div class="stat-label">Nouveaux Leads</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="week-leads">--</div>
+                <div class="stat-label">Cette Semaine</div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+            <div class="tab active" onclick="filterLeads('all')">Tous les leads</div>
+            <div class="tab" onclick="filterLeads('demo')">Demandes démo</div>
+            <div class="tab" onclick="filterLeads('appointment')">Rendez-vous</div>
+            <div class="tab" onclick="filterLeads('contact')">Messages</div>
+        </div>
+
+        <!-- Leads Table -->
+        <div class="leads-table">
+            <div id="loading" class="loading">Chargement des données...</div>
+            <div id="error" class="error" style="display: none;"></div>
+            <table id="leads-table" style="display: none;">
+                <thead>
+                    <tr>
+                        <th>Type</th>
+                        <th>Date</th>
+                        <th>Nom</th>
+                        <th>Email</th>
+                        <th>Téléphone</th>
+                        <th>Contexte</th>
+                        <th>Statut</th>
+                    </tr>
+                </thead>
+                <tbody id="leads-tbody">
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        let allLeads = [];
+        let currentFilter = 'all';
+
+        // Charger le dashboard au démarrage
+        window.addEventListener('DOMContentLoaded', loadDashboard);
+
+        async function loadDashboard() {
+            try {
+                // Afficher le loading
+                document.getElementById('loading').style.display = 'block';
+                document.getElementById('error').style.display = 'none';
+                document.getElementById('leads-table').style.display = 'none';
+
+                // Charger les statistiques
+                const statsResult = await window.LucidDB.getLeadStats();
+                if (statsResult.success && statsResult.stats) {
+                    const stats = statsResult.stats;
+                    document.getElementById('total-leads').textContent = stats.total_leads || 0;
+                    document.getElementById('demo-count').textContent = stats.demo_requests_count || 0;
+                    document.getElementById('rdv-count').textContent = stats.appointments_count || 0;
+                    document.getElementById('contact-count').textContent = stats.contacts_count || 0;
+                    document.getElementById('new-leads').textContent = stats.nouveaux_leads || 0;
+                    document.getElementById('week-leads').textContent = stats.leads_this_week || 0;
+                }
+
+                // Charger les leads
+                const leadsResult = await window.LucidDB.getAllLeads();
+                if (leadsResult.success) {
+                    allLeads = leadsResult.leads || [];
+                    displayLeads(allLeads);
+                } else {
+                    throw new Error('Erreur lors du chargement des leads');
+                }
+
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('leads-table').style.display = 'table';
+
+            } catch (error) {
+                console.error('Erreur:', error);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('error').style.display = 'block';
+                document.getElementById('error').textContent = 
+                    '❌ Erreur de connexion à la base de données. Vérifiez votre configuration Supabase dans supabase-config.js';
+            }
+        }
+
+        function displayLeads(leads) {
+            const tbody = document.getElementById('leads-tbody');
+            tbody.innerHTML = '';
+
+            if (leads.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 3rem; color: rgba(248, 249, 252, 0.5);">Aucun lead pour le moment</td></tr>';
+                return;
+            }
+
+            leads.forEach(lead => {
+                const row = document.createElement('tr');
+                
+                const typeClass = `badge-${lead.type}`;
+                const statusClass = getStatusClass(lead.status);
+                
+                const date = new Date(lead.created_at);
+                const formattedDate = date.toLocaleDateString('fr-FR', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                row.innerHTML = `
+                    <td><span class="badge ${typeClass}">${getTypeLabel(lead.type)}</span></td>
+                    <td>${formattedDate}</td>
+                    <td>${lead.name}</td>
+                    <td>${lead.email}</td>
+                    <td>${lead.phone || '-'}</td>
+                    <td>${lead.context || '-'}</td>
+                    <td><span class="badge ${statusClass}">${getStatusLabel(lead.status)}</span></td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        }
+
+        function filterLeads(type) {
+            currentFilter = type;
+            
+            // Update active tab
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Filter leads
+            let filteredLeads = allLeads;
+            if (type !== 'all') {
+                filteredLeads = allLeads.filter(lead => lead.type === type);
+            }
+
+            displayLeads(filteredLeads);
+        }
+
+        function getTypeLabel(type) {
+            const labels = {
+                'demo': '🎯 Démo',
+                'appointment': '📅 RDV',
+                'contact': '✉️ Contact'
+            };
+            return labels[type] || type;
+        }
+
+        function getStatusLabel(status) {
+            const labels = {
+                'nouveau': 'Nouveau',
+                'en_attente': 'En attente',
+                'non_lu': 'Non lu',
+                'traite': 'Traité',
+                'termine': 'Terminé'
+            };
+            return labels[status] || status;
+        }
+
+        function getStatusClass(status) {
+            const classes = {
+                'nouveau': 'badge-nouveau',
+                'en_attente': 'badge-en-attente',
+                'non_lu': 'badge-non-lu'
+            };
+            return classes[status] || 'badge-nouveau';
+        }
+    </script>
+</body>
+</html>
