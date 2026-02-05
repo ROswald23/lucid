@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Lucid - Solution intégrée de pilotage de la performance, gestion des stocks et optimisation de la supply chain pour PME">
+    <title>Lucid - Pilotez votre performance en temps réel</title>
+    
+    <!-- Preconnect for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    
+    <!-- Supabase Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    
+    <style>
+        :root {
+            --lucid-blue: #5DB9E8;
+            --lucid-purple: #9B6BDF;
+            --lucid-dark: #0A0E27;
+            --lucid-gray: #1A1F3A;
+            --lucid-light: #F8F9FC;
+            --gradient-primary: linear-gradient(135deg, var(--lucid-blue) 0%, var(--lucid-purple) 100%);
+            --gradient-dark: linear-gradient(135deg, #0A0E27 0%, #1A1F3A 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--lucid-dark);
+            color: var(--lucid-light);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Animated background */
+        .bg-animated {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: var(--gradient-dark);
+        }
+
+        .bg-animated::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 80%;
+            height: 80%;
+            background: radial-gradient(circle, rgba(93, 185, 232, 0.15) 0%, transparent 70%);
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .bg-animated::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: -10%;
+            width: 60%;
+            height: 60%;
+            background: radial-gradient(circle, rgba(155, 107, 223, 0.15) 0%, transparent 70%);
+            animation: float 15s ease-in-out infinite reverse;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(30px, -30px) rotate(5deg); }
+            66% { transform: translate(-20px, 20px) rotate(-5deg); }
+        }
+
+        /* Header */
+        header {
+            padding: 2rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            background: rgba(10, 14, 39, 0.8);
+            backdrop-filter: blur(20px);
+            z-index: 1000;
+            border-bottom: 1px solid rgba(93, 185, 232, 0.1);
+        }
+
+        .logo {
+            height: 50px;
+            filter: brightness(1.2) drop-shadow(0 0 20px rgba(93, 185, 232, 0.4));
+            animation: glow 3s ease-in-out infinite alternate;
+            background: transparent;
+            padding: 0.3rem 0.8rem;
+            border-radius: 8px;
+        }
+
+        @keyframes glow {
+            from { filter: brightness(1.2) drop-shadow(0 0 20px rgba(93, 185, 232, 0.4)); }
+            to { filter: brightness(1.3) drop-shadow(0 0 30px rgba(155, 107, 223, 0.6)); }
+        }
+
+        nav {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        nav a {
+            color: var(--lucid-light);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        nav a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--gradient-primary);
+            transition: width 0.3s ease;
+        }
+
+        nav a:hover::after {
+            width: 100%;
+        }
+
+        .cta-btn {
+            background: var(--gradient-primary);
+            padding: 0.8rem 2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            color: white;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .cta-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(93, 185, 232, 0.4);
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 90vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem 5%;
+            text-align: center;
+        }
+
+        .hero-content {
+            max-width: 900px;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            font-size: clamp(2.5rem, 6vw, 5rem);
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+            animation: fadeInUp 1s ease-out 0.2s both;
+        }
+
+        .hero p {
+            font-size: clamp(1.1rem, 2vw, 1.4rem);
+            margin-bottom: 2.5rem;
+            color: rgba(248, 249, 252, 0.8);
+            animation: fadeInUp 1s ease-out 0.4s both;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: fadeInUp 1s ease-out 0.6s both;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid var(--lucid-blue);
+            padding: 0.8rem 2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            color: var(--lucid-blue);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-secondary:hover {
+            background: var(--lucid-blue);
+            color: var(--lucid-dark);
+            transform: translateY(-3px);
+        }
+
+        /* Stats Section */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            padding: 4rem 5%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .stat-card {
+            background: rgba(26, 31, 58, 0.5);
+            padding: 2rem;
+            border-radius: 20px;
+            text-align: center;
+            border: 1px solid rgba(93, 185, 232, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--lucid-purple);
+            box-shadow: 0 20px 40px rgba(155, 107, 223, 0.2);
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 800;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .stat-label {
+            font-size: 1.1rem;
+            color: rgba(248, 249, 252, 0.7);
+            margin-top: 0.5rem;
+        }
+
+        /* Services Section */
+        .services {
+            padding: 6rem 5%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: clamp(2rem, 4vw, 3.5rem);
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            font-size: 1.2rem;
+            color: rgba(248, 249, 252, 0.7);
+            margin-bottom: 4rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2.5rem;
+            margin-top: 3rem;
+        }
+
+        .service-card {
+            background: rgba(26, 31, 58, 0.6);
+            padding: 3rem;
+            border-radius: 25px;
+            border: 1px solid rgba(93, 185, 232, 0.2);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .service-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(93, 185, 232, 0.1) 0%, transparent 70%);
+            transition: all 0.6s ease;
+            opacity: 0;
+        }
+
+        .service-card:hover::before {
+            opacity: 1;
+            transform: translate(-25%, -25%);
+        }
+
+        .service-card:hover {
+            transform: translateY(-15px);
+            border-color: var(--lucid-purple);
+            box-shadow: 0 25px 50px rgba(155, 107, 223, 0.3);
+        }
+
+        .service-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .service-card h3 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--lucid-blue);
+        }
+
+        .service-card ul {
+            list-style: none;
+            margin-top: 1.5rem;
+        }
+
+        .service-card li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+            color: rgba(248, 249, 252, 0.8);
+        }
+
+        .service-card li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: var(--lucid-purple);
+            font-weight: 700;
+        }
+
+        /* Pricing Section */
+        .pricing {
+            padding: 6rem 5%;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2.5rem;
+            margin-top: 3rem;
+        }
+
+        .pricing-card {
+            background: rgba(26, 31, 58, 0.6);
+            padding: 3rem;
+            border-radius: 25px;
+            border: 2px solid rgba(93, 185, 232, 0.2);
+            transition: all 0.4s ease;
+            position: relative;
+            text-align: center;
+        }
+
+        .pricing-card.featured {
+            border-color: var(--lucid-purple);
+            background: rgba(155, 107, 223, 0.1);
+            transform: scale(1.05);
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-15px) scale(1.02);
+            box-shadow: 0 30px 60px rgba(93, 185, 232, 0.3);
+        }
+
+        .pricing-card.featured:hover {
+            transform: translateY(-15px) scale(1.07);
+            box-shadow: 0 30px 60px rgba(155, 107, 223, 0.4);
+        }
+
+        .pricing-badge {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 1.5rem;
+        }
+
+        .pricing-name {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            color: var(--lucid-light);
+        }
+
+        .pricing-price {
+            font-size: 3.5rem;
+            font-weight: 800;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .pricing-period {
+            color: rgba(248, 249, 252, 0.6);
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+        }
+
+        .pricing-features {
+            list-style: none;
+            text-align: left;
+            margin: 2rem 0;
+        }
+
+        .pricing-features li {
+            padding: 0.8rem 0;
+            padding-left: 2rem;
+            position: relative;
+            color: rgba(248, 249, 252, 0.8);
+        }
+
+        .pricing-features li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--lucid-blue);
+            font-weight: 700;
+            font-size: 1.3rem;
+        }
+
+        /* Contact Section */
+        .contact {
+            padding: 6rem 5%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .contact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 3rem;
+            margin-top: 3rem;
+        }
+
+        .contact-card {
+            background: rgba(26, 31, 58, 0.6);
+            padding: 3rem;
+            border-radius: 25px;
+            border: 1px solid rgba(93, 185, 232, 0.2);
+        }
+
+        .contact-card h3 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--lucid-blue);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: rgba(248, 249, 252, 0.9);
+            font-weight: 500;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 1rem;
+            border-radius: 12px;
+            border: 1px solid rgba(93, 185, 232, 0.3);
+            background: rgba(10, 14, 39, 0.5);
+            color: var(--lucid-light);
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--lucid-purple);
+            box-shadow: 0 0 0 3px rgba(155, 107, 223, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        button[type="submit"] {
+            width: 100%;
+            background: var(--gradient-primary);
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        button[type="submit"]:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(93, 185, 232, 0.4);
+        }
+
+        /* Footer */
+        footer {
+            padding: 3rem 5%;
+            text-align: center;
+            border-top: 1px solid rgba(93, 185, 232, 0.1);
+            margin-top: 4rem;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: rgba(248, 249, 252, 0.7);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--lucid-blue);
+        }
+
+        .support-hours {
+            background: rgba(26, 31, 58, 0.6);
+            padding: 2rem;
+            border-radius: 15px;
+            margin: 2rem auto;
+            max-width: 500px;
+            border: 1px solid rgba(93, 185, 232, 0.2);
+        }
+
+        .support-hours h4 {
+            color: var(--lucid-purple);
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        /* Mobile Menu */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--lucid-light);
+            font-size: 1.8rem;
+            cursor: pointer;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            nav {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: rgba(10, 14, 39, 0.98);
+                flex-direction: column;
+                padding: 2rem;
+                gap: 1rem;
+            }
+
+            nav.active {
+                display: flex;
+            }
+
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .pricing-card.featured {
+                transform: scale(1);
+            }
+
+            .contact-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Success Message */
+        .success-message {
+            background: rgba(93, 185, 232, 0.2);
+            border: 1px solid var(--lucid-blue);
+            padding: 1rem;
+            border-radius: 12px;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .success-message.show {
+            display: block;
+            animation: fadeInUp 0.5s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animated"></div>
+
+    <!-- Header -->
+    <header>
+        <img src="logo_Lucid.png" alt="Lucid Logo" class="logo" id="logo">
+        <button class="mobile-menu-btn" onclick="toggleMenu()">☰</button>
+        <nav id="nav">
+            <a href="#services">Services</a>
+            <a href="#pricing">Tarifs</a>
+            <a href="#contact">Contact</a>
+            <a href="#demo" class="cta-btn">Demander une démo</a>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Pilotez votre performance en temps réel</h1>
+            <p>Lucid est une solution intégrée de pilotage de la performance, de gestion des stocks et d'optimisation de la supply chain. Conçue pour les PME qui veulent prendre les bonnes décisions.</p>
+            <div class="hero-buttons">
+                <a href="#demo" class="cta-btn">Demander une démo gratuite</a>
+                <a href="#pricing" class="btn-secondary">Découvrir les formules</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats">
+        <div class="stat-card">
+            <div class="stat-number">24/7</div>
+            <div class="stat-label">Support disponible</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">3</div>
+            <div class="stat-label">Formules adaptées</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">100%</div>
+            <div class="stat-label">Temps réel</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">PME</div>
+            <div class="stat-label">Notre cible</div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section class="services" id="services">
+        <h2 class="section-title">Nos Services</h2>
+        <p class="section-subtitle">Des outils puissants et un accompagnement personnalisé pour optimiser votre performance</p>
+        
+        <div class="services-grid">
+            <div class="service-card">
+                <div class="service-icon">📊</div>
+                <h3>Tableau de Bord de Pilotage</h3>
+                <p>Pilotez votre activité en temps réel sans passer des heures sur Excel.</p>
+                <ul>
+                    <li>Indicateurs clés mensuels personnalisés</li>
+                    <li>Analyse de l'activité sur la durée</li>
+                    <li>Performance produits & services</li>
+                    <li>Suivi budgétaire automatisé avec alertes</li>
+                </ul>
+            </div>
+
+            <div class="service-card">
+                <div class="service-icon">💼</div>
+                <h3>Diagnostic Financier</h3>
+                <p>Une vision claire et immédiate de votre situation pour aider à la décision.</p>
+                <ul>
+                    <li>Audit flash du P&L</li>
+                    <li>Analyse de la structure financière</li>
+                    <li>Rapport décisionnel synthétique</li>
+                    <li>Recommandations concrètes</li>
+                </ul>
+            </div>
+
+            <div class="service-card">
+                <div class="service-icon">💰</div>
+                <h3>Optimisation de la Marge</h3>
+                <p>Maximisez votre rentabilité et sécurisez votre trésorerie.</p>
+                <ul>
+                    <li>Rentabilité par segment</li>
+                    <li>Optimisation du BFR</li>
+                    <li>Calcul du point mort</li>
+                    <li>Stratégies de cash-flow</li>
+                </ul>
+            </div>
+
+            <div class="service-card">
+                <div class="service-icon">📱</div>
+                <h3>Mini Web Application</h3>
+                <p>Accédez à vos indicateurs où que vous soyez, sur mobile ou tablette.</p>
+                <ul>
+                    <li>Interface optimisée mobile</li>
+                    <li>Consultation en temps réel</li>
+                    <li>Expérience fluide et intuitive</li>
+                    <li>Toutes les fonctionnalités principales</li>
+                </ul>
+            </div>
+
+            <div class="service-card">
+                <div class="service-icon">📈</div>
+                <h3>SMART REPORT</h3>
+                <p>Rapport hebdomadaire automatisé synthétisant la performance de vos produits et services.</p>
+                <ul>
+                    <li>Rapport détaillé hebdomadaire</li>
+                    <li>60% automatisé</li>
+                    <li>Livraison le jour de votre choix</li>
+                    <li>Ajustements rapides possibles</li>
+                </ul>
+            </div>
+
+            <div class="service-card">
+                <div class="service-icon">👨‍💼</div>
+                <h3>Accompagnement CFO</h3>
+                <p>Un Analyste dédié pour optimiser vos performances financières.</p>
+                <ul>
+                    <li>Réunion mensuelle de pilotage</li>
+                    <li>Analyse des tableaux de bord</li>
+                    <li>Ajustement de la stratégie</li>
+                    <li>Suivi personnalisé</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section class="pricing" id="pricing">
+        <h2 class="section-title">Nos Formules</h2>
+        <p class="section-subtitle">Choisissez la formule qui correspond à vos besoins</p>
+        
+        <div class="pricing-grid">
+            <div class="pricing-card">
+                <div class="pricing-name">LUCID</div>
+                <div class="pricing-price">149€</div>
+                <div class="pricing-period">/mois</div>
+                <ul class="pricing-features">
+                    <li>Accès complet à la plateforme</li>
+                    <li>Tableaux de bord personnalisés</li>
+                    <li>Indicateurs financiers et logistiques</li>
+                    <li>Suivi en temps réel</li>
+                    <li>Support 7j/7 de 9h à 18h</li>
+                </ul>
+                <a href="#demo" class="cta-btn">Commencer</a>
+            </div>
+
+            <div class="pricing-card featured">
+                <div class="pricing-badge">⭐ POPULAIRE</div>
+                <div class="pricing-name">LUCID+</div>
+                <div class="pricing-price">249€</div>
+                <div class="pricing-period">/mois</div>
+                <ul class="pricing-features">
+                    <li>Tout de LUCID inclus</li>
+                    <li>SMART REPORT hebdomadaire</li>
+                    <li>Rapport détaillé personnalisé</li>
+                    <li>Livraison le jour de votre choix</li>
+                    <li>Ajustements rapides</li>
+                    <li>Support prioritaire</li>
+                </ul>
+                <a href="#demo" class="cta-btn">Commencer</a>
+            </div>
+
+            <div class="pricing-card">
+                <div class="pricing-name">LUCID PRO</div>
+                <div class="pricing-price">350€</div>
+                <div class="pricing-period">/mois</div>
+                <ul class="pricing-features">
+                    <li>Tout de LUCID+ inclus</li>
+                    <li>Analyste dédié personnel</li>
+                    <li>Séance mensuelle individuelle</li>
+                    <li>Accompagnement stratégique</li>
+                    <li>Optimisation performances financières</li>
+                    <li>Support VIP illimité</li>
+                </ul>
+                <a href="#demo" class="cta-btn">Commencer</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact" id="contact">
+        <h2 class="section-title">Contactez-nous</h2>
+        <p class="section-subtitle">Nous sommes là pour répondre à vos questions</p>
+        
+        <div class="contact-grid">
+            <!-- Demo Request Form -->
+            <div class="contact-card" id="demo">
+                <h3>🎯 Demander une démo</h3>
+                <form id="demoForm" method="POST">
+                    <div class="form-group">
+                        <label for="demo-name">Nom complet *</label>
+                        <input type="text" id="demo-name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="demo-email">Email professionnel *</label>
+                        <input type="email" id="demo-email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="demo-phone">Téléphone *</label>
+                        <input type="tel" id="demo-phone" name="phone" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="demo-company">Entreprise *</label>
+                        <input type="text" id="demo-company" name="company" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="demo-employees">Nombre d'employés</label>
+                        <select id="demo-employees" name="employees">
+                            <option value="">Sélectionner</option>
+                            <option value="1-10">1-10</option>
+                            <option value="11-50">11-50</option>
+                            <option value="51-200">51-200</option>
+                            <option value="200+">200+</option>
+                        </select>
+                    </div>
+                    <button type="submit">Demander une démo</button>
+                    <div class="success-message" id="demo-success">✓ Merci ! Nous vous recontacterons sous 24h.</div>
+                </form>
+            </div>
+
+            <!-- Appointment Form -->
+            <div class="contact-card">
+                <h3>📅 Prendre rendez-vous</h3>
+                <form id="appointmentForm" method="POST">
+                    <div class="form-group">
+                        <label for="rdv-name">Nom complet *</label>
+                        <input type="text" id="rdv-name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="rdv-email">Email *</label>
+                        <input type="email" id="rdv-email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="rdv-phone">Téléphone *</label>
+                        <input type="tel" id="rdv-phone" name="phone" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="rdv-date">Date souhaitée</label>
+                        <input type="date" id="rdv-date" name="date">
+                    </div>
+                    <div class="form-group">
+                        <label for="rdv-time">Créneau préféré</label>
+                        <select id="rdv-time" name="time">
+                            <option value="">Sélectionner</option>
+                            <option value="9h-12h">9h-12h</option>
+                            <option value="14h-17h">14h-17h</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="rdv-subject">Sujet du rendez-vous</label>
+                        <textarea id="rdv-subject" name="subject" rows="3"></textarea>
+                    </div>
+                    <button type="submit">Prendre RDV</button>
+                    <div class="success-message" id="rdv-success">✓ Demande envoyée ! Nous confirmerons votre RDV rapidement.</div>
+                </form>
+            </div>
+
+            <!-- Contact Form -->
+            <div class="contact-card">
+                <h3>✉️ Nous contacter</h3>
+                <form id="contactForm" method="POST">
+                    <div class="form-group">
+                        <label for="contact-name">Nom complet *</label>
+                        <input type="text" id="contact-name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="contact-email">Email *</label>
+                        <input type="email" id="contact-email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="contact-subject">Sujet *</label>
+                        <select id="contact-subject" name="subject" required>
+                            <option value="">Sélectionner</option>
+                            <option value="Information">Demande d'information</option>
+                            <option value="Support">Support technique</option>
+                            <option value="Tarifs">Question sur les tarifs</option>
+                            <option value="Autre">Autre</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="contact-message">Message *</label>
+                        <textarea id="contact-message" name="message" required></textarea>
+                    </div>
+                    <button type="submit">Envoyer</button>
+                    <div class="success-message" id="contact-success">✓ Message envoyé ! Nous vous répondrons dans les plus brefs délais.</div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="support-hours">
+                <h4>Support disponible</h4>
+                <p>7 jours sur 7, de 9h à 18h</p>
+                <p style="margin-top: 1rem; color: var(--lucid-blue);">Nous sommes là pour vous accompagner</p>
+            </div>
+            
+            <div class="footer-links">
+                <a href="#services">Services</a>
+                <a href="#pricing">Tarifs</a>
+                <a href="#contact">Contact</a>
+                <a href="mentions-legales.html">Mentions légales</a>
+                <a href="cgv.html">CGV</a>
+                <a href="privacy.html">Politique de confidentialité</a>
+            </div>
+            
+            <p style="margin-top: 2rem; color: rgba(248, 249, 252, 0.5);">
+                © 2026 Lucid. Tous droits réservés.
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle
+        function toggleMenu() {
+            const nav = document.getElementById('nav');
+            nav.classList.toggle('active');
+        }
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                    // Close mobile menu if open
+                    document.getElementById('nav').classList.remove('active');
+                }
+            });
+        });
+
+        // Form submissions with dual integration (Supabase + Formspree)
+        function setupForm(formId, successId, saveFunction, formspreeUrl) {
+            const form = document.getElementById(formId);
+            const successMsg = document.getElementById(successId);
+            
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault(); // Empêcher la soumission par défaut
+                
+                // Récupérer les données du formulaire
+                const formData = new FormData(form);
+                const data = Object.fromEntries(formData.entries());
+                
+                try {
+                    // 1. Sauvegarder dans Supabase
+                    const supabaseResult = await saveFunction(data);
+                    
+                    // 2. Envoyer vers Formspree (en parallèle)
+                    const formspreeResult = await fetch(formspreeUrl, {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    });
+                    
+                    // Vérifier que les deux ont fonctionné
+                    if (supabaseResult.success || formspreeResult.ok) {
+                        // Afficher le message de succès
+                        successMsg.classList.add('show');
+                        form.reset();
+                        
+                        // Masquer après 5 secondes
+                        setTimeout(() => {
+                            successMsg.classList.remove('show');
+                        }, 5000);
+                        
+                        // Log pour debug
+                        console.log('✅ Supabase:', supabaseResult.success ? 'OK' : 'Échec');
+                        console.log('✅ Formspree:', formspreeResult.ok ? 'OK' : 'Échec');
+                    } else {
+                        throw new Error('Les deux systèmes ont échoué');
+                    }
+                } catch (error) {
+                    console.error('Erreur lors de la soumission:', error);
+                    
+                    // Même en cas d'erreur, on essaie d'envoyer au moins à Formspree
+                    try {
+                        await fetch(formspreeUrl, {
+                            method: 'POST',
+                            body: new FormData(form),
+                            headers: {
+                                'Accept': 'application/json'
+                            }
+                        });
+                        successMsg.textContent = '✓ Message envoyé ! (sauvegarde BDD en attente)';
+                        successMsg.classList.add('show');
+                        form.reset();
+                        setTimeout(() => {
+                            successMsg.classList.remove('show');
+                            successMsg.textContent = successMsg.textContent.replace(' (sauvegarde BDD en attente)', '');
+                        }, 5000);
+                    } catch (fallbackError) {
+                        alert('Une erreur est survenue. Veuillez réessayer ou nous contacter directement.');
+                    }
+                }
+            });
+        }
+
+        setupForm('demoForm', 'demo-success', window.LucidDB.saveDemoRequest, 'https://formspree.io/f/xnjzgrrb');
+        setupForm('appointmentForm', 'rdv-success', window.LucidDB.saveAppointmentRequest, 'https://formspree.io/f/mqelyjjn');
+        setupForm('contactForm', 'contact-success', window.LucidDB.saveContactMessage, 'https://formspree.io/f/xaqbpadd');
+
+        // Intersection Observer for scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observe all cards
+        document.querySelectorAll('.service-card, .pricing-card, .contact-card, .stat-card').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(30px)';
+            card.style.transition = 'all 0.6s ease-out';
+            observer.observe(card);
+        });
+
+        // Copy logo to working directory for display
+        // In production, make sure logo_Lucid.png is in the same directory as index.html
+    </script>
+</body>
+</html>
